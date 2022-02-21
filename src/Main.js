@@ -41,14 +41,12 @@ var httpHandler_1 = require("./client/httpHandler");
 var corporationId = 10000002;
 function fetchData() {
     return __awaiter(this, void 0, void 0, function () {
-        var orders, typeIds, names;
+        var typeIds, names;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, httpHandler_1.httpWithRetry)(function () { return (0, evetech_1.getAllOrdersByCorporation)(corporationId); }, 5)];
+                case 0: return [4 /*yield*/, (0, evetech_1.getOrdersByCorporation)(corporationId)];
                 case 1:
-                    orders = _a.sent();
-                    console.log("fetched: " + orders.length + " orders");
-                    typeIds = (0, evetech_1.typeIdsFromOrders)(orders);
+                    typeIds = _a.sent();
                     return [4 /*yield*/, (0, httpHandler_1.fetchNamesFromOrders)(typeIds, 500)];
                 case 2:
                     names = _a.sent();

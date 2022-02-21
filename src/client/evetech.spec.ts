@@ -1,5 +1,5 @@
 import axios from "axios"
-import { getAllOrdersByCorporation, getAllOrdersByCorporationUrl, getNames, sortByName, sortNames, typeIdsFromOrders } from "./evetech"
+import { getAllOrdersByCorporation, getAllOrdersByCorporationUrl, getNames, getOrdersByCorporation, Name, Order, sortByName, sortNames, typeIdsFromOrders } from "./evetech"
 import { fetchNamesFromOrders, httpWithRetry } from "./httpHandler"
 
 const url = 'https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=all&page=1'
@@ -54,7 +54,22 @@ jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 const httpGet = () => mockedAxios.get.mockResolvedValueOnce({ data: testData })
 const httpGetFailure = (errorMsg) => mockedAxios.get.mockRejectedValueOnce(`failed with: ${errorMsg}`)
-const httpPost = (resultSet) => mockedAxios.post.mockResolvedValue({ data: resultSet })
+const httpPostMock = (resultSet) => mockedAxios.post.mockResolvedValue({ data: resultSet })
+
+function getInventoryFromOrderId(typeIdsFromOrder: Order['type_id'][]) {
+  const commonIds =  Array.from(new Set([...typeIdsFromOrder, ...universes.map((u) => u.id)]));
+  const universeMap =  universes.reduce((obj, item) => (obj[item.id] = item, obj) ,{});
+  return commonIds.reduce((accum, id) => {
+    if( id in universeMap) {
+      return [universeMap[id], ...accum]
+    }
+    return accum
+  },[] as Name[])
+}
+
+const httpPostOrders = (orderIds: Order['type_id'][]) => mockedAxios.post.mockResolvedValueOnce(
+  { data:  getInventoryFromOrderId(orderIds) } 
+)
 
 test('failed http retries', async () => {
   httpGetFailure('failed to fetch orders')
@@ -90,18 +105,26 @@ test('post type_ids to lookupNameURL', async () => {
     throw Error('unable to fetch orders')
   }
   const typeIds = typeIdsFromOrders(orders)
-  httpPost(['hello', 'world'])
+  httpPostMock(['hello', 'world'])
   const universes = await getNames(typeIds)
   await (expect(universes)).toEqual(['hello', 'world'])
 })
 
 test('fetch names in chunks to reduce congestion in service', async () => {
   const testData = ['data']
-  httpPost(testData)
+  httpPostMock(testData)
   const typeIds = [1, 2, 3, 4, 5]
   const result = await fetchNamesFromOrders(
     typeIds,
     2
   )
   expect(result).toEqual(['data', 'data', 'data'])
+})
+
+test('integration test for fetching names via orders', async() => {
+  httpGet()
+  const typeIds = await getOrdersByCorporation(corporationId)
+  httpPostOrders(typeIds)
+  const names = await fetchNamesFromOrders(typeIds, 500)
+  await (expect(names)).toEqual(universes)
 })

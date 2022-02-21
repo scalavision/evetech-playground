@@ -1,9 +1,7 @@
 import {
-  getAllOrdersByCorporation,
-  typeIdsFromOrders,
   sortNames,
   Name,
-  Order,
+  getOrdersByCorporation,
 } from './client/evetech'
 import * as _ from 'lodash'
 import { fetchNamesFromOrders, httpWithRetry } from './client/httpHandler'
@@ -12,9 +10,7 @@ const corporationId = 10000002
 
 async function fetchData(): Promise<Name[]> {
 
-  const orders = await httpWithRetry<Order>(() => getAllOrdersByCorporation(corporationId), 5)
-  console.log(`fetched: ${orders.length} orders`)
-  const typeIds = typeIdsFromOrders(orders)
+  const typeIds = await getOrdersByCorporation(corporationId)
   const names = await fetchNamesFromOrders(typeIds, 500)
   if (!names) {
     throw new Error("unable to fetch universe names")

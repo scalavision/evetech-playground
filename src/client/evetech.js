@@ -36,9 +36,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getNames = exports.sortByName = exports.sortNames = exports.getAllOrdersByCorporation = exports.getAllOrdersByCorporationUrl = exports.typeIdsFromOrders = void 0;
+exports.getNames = exports.getOrdersByCorporation = exports.sortByName = exports.sortNames = exports.getAllOrdersByCorporation = exports.getAllOrdersByCorporationUrl = exports.typeIdsFromOrders = void 0;
 var axios_1 = require("axios");
 var _ = require("lodash");
+var httpHandler_1 = require("./httpHandler");
 function typeIdsFromOrders(orders) {
     return orders.map(function (_a) {
         var type_id = _a.type_id;
@@ -112,6 +113,20 @@ function sortByName(a, b) {
     return 0;
 }
 exports.sortByName = sortByName;
+var getOrdersByCorporation = function (corporationId) { return __awaiter(void 0, void 0, void 0, function () {
+    var orders, typeIds;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, (0, httpHandler_1.httpWithRetry)(function () { return (0, exports.getAllOrdersByCorporation)(corporationId); }, 5)];
+            case 1:
+                orders = _a.sent();
+                console.log("fetched: " + orders.length + " orders");
+                typeIds = typeIdsFromOrders(orders);
+                return [2 /*return*/, typeIds];
+        }
+    });
+}); };
+exports.getOrdersByCorporation = getOrdersByCorporation;
 var getNames = function (type_ids) { return __awaiter(void 0, void 0, void 0, function () {
     var url, result, error_2;
     return __generator(this, function (_a) {

@@ -1,5 +1,6 @@
 import axios from "axios"
 import * as _ from 'lodash'
+import { httpWithRetry } from "./httpHandler"
 
 export interface Order {
   duration: number
@@ -84,6 +85,15 @@ export function sortByName(a: Name, b: Name): number {
   if (a.name < b.name) return -1
   if (a.name > b.name) return 1
   return 0
+}
+
+export const getOrdersByCorporation = async(
+  corporationId: number
+): Promise<Array<Order['type_id']>> => {
+  const orders = await httpWithRetry<Order>(() => getAllOrdersByCorporation(corporationId), 5)
+  console.log(`fetched: ${orders.length} orders`)
+  const typeIds = typeIdsFromOrders(orders)
+  return typeIds
 }
 
 export const getNames = async (
