@@ -20,8 +20,8 @@ export interface TypeId {
   type_id: number
 }
 
-export function typeIdsFromOrders(orders: Order[]): TypeId[] {
-  return orders.map(({ type_id }) => { return { type_id: type_id } })
+export function typeIdsFromOrders(orders: Order[]): Order['type_id'][] {
+  return orders.map(({ type_id }) => type_id)
 }
 
 const Api = 'https://esi.evetech.net/latest'
@@ -76,8 +76,8 @@ export interface Name {
 
 type SortOrder = 'ascending' | 'descending'
 
-export function sortNames(Names: Name[], orderBy: SortOrder = 'ascending'): Name[] {
-  return _.sortBy(Names, [Name => Name.name.toLowerCase()], [orderBy])
+export function sortNames(names: Name[], orderBy: SortOrder = 'ascending'): Name[] {
+  return _.sortBy(names, [name => name.name.toLowerCase()], [orderBy])
 }
 
 export function sortByName(a: Name, b: Name): number {
@@ -87,14 +87,13 @@ export function sortByName(a: Name, b: Name): number {
 }
 
 export const getNames = async (
-  type_ids: TypeId[]
+  type_ids: Order['type_id'][]
 ): Promise<Array<Name> | void> => {
   if (type_ids.length === 0) return []
   if (type_ids.length >= 1000) throw Error('Unable to handle request for 1000 or more orders')
   const url = `${Api}/universe/names/?datasource=tranquility`
-  const ids: number[] = type_ids.map(({ type_id }) => type_id)
   try {
-    const result = await axios.post<Array<Name>>(url, ids)
+    const result = await axios.post<Array<Name>>(url, type_ids)
     return result.data
   } catch (error) {
     logError(error)

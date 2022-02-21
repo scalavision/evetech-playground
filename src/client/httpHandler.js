@@ -94,7 +94,7 @@ function fetchNamesFromOrders(typeIds, windowSize) {
             switch (_a.label) {
                 case 0:
                     results = [];
-                    uniqeTypeIds = _.uniqBy(typeIds, 'type_id');
+                    uniqeTypeIds = _.uniq(typeIds);
                     idChunk = _.chunk(uniqeTypeIds, windowSize);
                     _loop_1 = function (ids) {
                         var nextValue;

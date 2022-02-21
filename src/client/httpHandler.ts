@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import { getNames, TypeId, Name } from './evetech'
+import { getNames, TypeId, Name, Order } from './evetech'
 
 export async function httpWithRetry<A>(
   httpFn: () => Promise<Array<A> | void>,
@@ -32,11 +32,11 @@ export async function httpWithRetryStrategy<A>(
 }
 
 export async function fetchNamesFromOrders(
-  typeIds: TypeId[],
+  typeIds: Order['type_id'][],
   windowSize: number
 ): Promise<Array<Name>> {
   let results = []
-  const uniqeTypeIds = _.uniqBy(typeIds, 'type_id')
+  const uniqeTypeIds = _.uniq(typeIds)
   const idChunk = _.chunk(uniqeTypeIds, windowSize)
 
   for (const ids of idChunk) {

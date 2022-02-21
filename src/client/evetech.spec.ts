@@ -1,7 +1,6 @@
 import axios from "axios"
 import { getAllOrdersByCorporation, getAllOrdersByCorporationUrl, getNames, sortByName, sortNames, typeIdsFromOrders } from "./evetech"
 import { fetchNamesFromOrders, httpWithRetry } from "./httpHandler"
-import { slidingWindow } from "./slidingWindow"
 
 const url = 'https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=all&page=1'
 const corporationId = 10000002
@@ -41,7 +40,7 @@ const testData = [
   },
 ]
 
-const typeIds = [{ type_id: 11198 }, { type_id: 10694 }]
+const typeIds = [11198 , 10694 ]
 const universes = [
   { category: 'inventory_type', id: 11198, name: 'Stiletto' },
   {
@@ -56,13 +55,6 @@ const mockedAxios = axios as jest.Mocked<typeof axios>
 const httpGet = () => mockedAxios.get.mockResolvedValueOnce({ data: testData })
 const httpGetFailure = (errorMsg) => mockedAxios.get.mockRejectedValueOnce(`failed with: ${errorMsg}`)
 const httpPost = (resultSet) => mockedAxios.post.mockResolvedValue({ data: resultSet })
-
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-test('creat sliding window from array', () => {
-  const slides = slidingWindow(numbers)
-  expect(slides).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-})
 
 test('failed http retries', async () => {
   httpGetFailure('failed to fetch orders')
@@ -106,7 +98,7 @@ test('post type_ids to lookupNameURL', async () => {
 test('fetch names in chunks to reduce congestion in service', async () => {
   const testData = ['data']
   httpPost(testData)
-  const typeIds = [1, 2, 3, 4, 5].map((i) => { return { type_id: i } })
+  const typeIds = [1, 2, 3, 4, 5]
   const result = await fetchNamesFromOrders(
     typeIds,
     2

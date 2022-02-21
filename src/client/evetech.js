@@ -42,7 +42,7 @@ var _ = require("lodash");
 function typeIdsFromOrders(orders) {
     return orders.map(function (_a) {
         var type_id = _a.type_id;
-        return { type_id: type_id };
+        return type_id;
     });
 }
 exports.typeIdsFromOrders = typeIdsFromOrders;
@@ -99,9 +99,9 @@ var getAllOrdersByCorporation = function (corporationId, dataSource, pagination)
     });
 };
 exports.getAllOrdersByCorporation = getAllOrdersByCorporation;
-function sortNames(Names, orderBy) {
+function sortNames(names, orderBy) {
     if (orderBy === void 0) { orderBy = 'ascending'; }
-    return _.sortBy(Names, [function (Name) { return Name.name.toLowerCase(); }], [orderBy]);
+    return _.sortBy(names, [function (name) { return name.name.toLowerCase(); }], [orderBy]);
 }
 exports.sortNames = sortNames;
 function sortByName(a, b) {
@@ -113,7 +113,7 @@ function sortByName(a, b) {
 }
 exports.sortByName = sortByName;
 var getNames = function (type_ids) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, ids, result, error_2;
+    var url, result, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -122,14 +122,10 @@ var getNames = function (type_ids) { return __awaiter(void 0, void 0, void 0, fu
                 if (type_ids.length >= 1000)
                     throw Error('Unable to handle request for 1000 or more orders');
                 url = Api + "/universe/names/?datasource=tranquility";
-                ids = type_ids.map(function (_a) {
-                    var type_id = _a.type_id;
-                    return type_id;
-                });
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, axios_1["default"].post(url, ids)];
+                return [4 /*yield*/, axios_1["default"].post(url, type_ids)];
             case 2:
                 result = _a.sent();
                 return [2 /*return*/, result.data];
